@@ -40,33 +40,46 @@ public class Main {
         System.out.println(binaryOutput);
     }
 
-    private static byte[] encode(byte[] message) {
+    private static byte[] encode(byte message) {
         byte[] result = new byte[2];
         byte temp;
-        System.arraycopy(message, 0, result, 0, 1);
+        byte[] dupa = new byte[]{message};
+        System.arraycopy(dupa, 0, result, 0, 1);
 
         for (int i = 0; i < 8; i++) {
             int counter = 0;
             temp = (byte) (result[0] & messageMatrix[i][0]);
             for (int j = 0; j < 8; j++) {
-                if (((temp >> i) & 1) == 1) {
+                if (((temp >> j) & 1) == 1) {
                     counter++;
                 }
             }
-            if(counter%2==0){
-                result[1]=(byte)((result[1]|0x1)<<7-i);
+            if(counter!=0){
+                result[1]=(byte)((result[1]|(0x1<<7-i)));
             }
         }
         return result;
     }
+//    private static byte[] decode(byte[] message) {
+//
+//    }
 
 
     public static void main(String[] args) {
-//        Scanner scan = new Scanner(System.in);
-//        System.out.println("Podaj wiadomosc: " );
-//        String string = scan.nextLine();
-//        byte [] input =string.getBytes();
-        byte[] input = new byte[]{1};
-        test(encode(input));
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Podaj wiadomosc: " );
+        String string = scan.nextLine();
+        byte [] input =string.getBytes();
+//        byte[] input = new byte[]{1};
+        StringBuilder builder = new StringBuilder();
+        byte[] result;
+        for (int i = 0; i <input.length ; i++) {
+            result = encode(input[i]);
+            for (byte b: result
+                 ) {
+                builder.append((char)b);
+            }
+        }
+        System.out.println(builder);
     }
 }
