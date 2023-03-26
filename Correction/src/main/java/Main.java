@@ -1,3 +1,4 @@
+import java.math.BigInteger;
 import java.util.Scanner;
 
 public class Main {
@@ -38,10 +39,24 @@ public class Main {
         String binaryOutput = sb.toString();
         System.out.println(binaryOutput);
     }
-    private static byte[] encode(byte[] message){
-        test(message);
+
+    private static byte[] encode(byte[] message) {
         byte[] result = new byte[2];
-        result[0]= (byte) (result[0]&message[0]);
+        byte temp;
+        System.arraycopy(message, 0, result, 0, 1);
+
+        for (int i = 0; i < 8; i++) {
+            int counter = 0;
+            temp = (byte) (result[0] & messageMatrix[i][0]);
+            for (int j = 0; j < 8; j++) {
+                if (((temp >> i) & 1) == 1) {
+                    counter++;
+                }
+            }
+            if(counter%2==0){
+                result[1]=(byte)((result[1]|0x1)<<7-i);
+            }
+        }
         return result;
     }
 
@@ -51,7 +66,7 @@ public class Main {
 //        System.out.println("Podaj wiadomosc: " );
 //        String string = scan.nextLine();
 //        byte [] input =string.getBytes();
-        byte [] input =new byte[]{65,65};
+        byte[] input = new byte[]{1};
         test(encode(input));
     }
 }
