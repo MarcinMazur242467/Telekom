@@ -1,7 +1,7 @@
-import java.math.BigInteger;
+import java.io.*;
 import java.util.Scanner;
 
-public class Main {
+public class Main implements AutoCloseable{
     private static byte[][] messageMatrix = new byte[][]{
             {(byte) 0xF0}, // {1, 1, 1, 1, 0, 0, 0, 0,
             {(byte) 0xCC},// {1, 1, 0, 0, 1, 1, 0, 0,
@@ -23,6 +23,22 @@ public class Main {
             {(byte) 0x01}//  0, 0, 0, 0, 0, 0, 0, 1
     };
 
+    private static byte[] read() throws FileNotFoundException {
+        Scanner scanner = new Scanner(new File("message.txt"));
+        String text = scanner.nextLine();
+        scanner.close();
+        return text.getBytes();
+    }
+
+    private static void createFile(String message) throws IOException {
+        File file = new File("message.txt");
+        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        writer.write(message);
+        writer.close();
+    }
+
+
     public static void test(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         int bits = 0;
@@ -43,8 +59,8 @@ public class Main {
     private static byte[] encode(byte message) {
         byte[] result = new byte[2];
         byte temp;
-        byte[] dupa = new byte[]{message};
-        System.arraycopy(dupa, 0, result, 0, 1);
+        byte[] temp2 = new byte[]{message};
+        System.arraycopy(temp2, 0, result, 0, 1);
 
         for (int i = 0; i < 8; i++) {
             int counter = 0;
@@ -54,7 +70,7 @@ public class Main {
                     counter++;
                 }
             }
-            if(counter!=0){
+            if(counter%2!=0){
                 result[1]=(byte)((result[1]|(0x1<<7-i)));
             }
         }
@@ -65,12 +81,12 @@ public class Main {
 //    }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in);
-        System.out.println("Podaj wiadomosc: " );
+        System.out.println("Podaj wiadomosc: ");
         String string = scan.nextLine();
-        byte [] input =string.getBytes();
-//        byte[] input = new byte[]{1};
+        createFile(string);
+        byte [] input = read();
         StringBuilder builder = new StringBuilder();
         byte[] result;
         for (int i = 0; i <input.length ; i++) {
@@ -81,5 +97,10 @@ public class Main {
             }
         }
         System.out.println(builder);
+    }
+
+    @Override
+    public void close() throws Exception {
+
     }
 }
