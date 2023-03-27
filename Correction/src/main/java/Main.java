@@ -20,6 +20,27 @@ public class Main{
             {(byte) 0xE7},// {1, 1, 1, 0, 0, 1, 1, 1,
             {(byte) 0x01}//  0, 0, 0, 0, 0, 0, 0, 1
     };
+
+    private static byte[][] transposedH = new byte[][]{
+            {(byte) 0xED},
+            {(byte) 0xDB},
+            {(byte) 0xAB},
+            {(byte) 0x96},
+            {(byte) 0x6A},
+            {(byte) 0x55},
+            {(byte) 0x33},
+            {(byte) 0xF0},
+
+            {(byte) 0x80},
+            {(byte) 0x40},
+            {(byte) 0x20},
+            {(byte) 0x10},
+            {(byte) 0x8},
+            {(byte) 0x4},
+            {(byte) 0x2},
+            {(byte) 0x1},
+    };
+
     private static byte[] read(String fileName) throws FileNotFoundException {
         Scanner scanner = new Scanner(new File(fileName));
         String text = scanner.nextLine();
@@ -72,14 +93,29 @@ public class Main{
         }
         return result;
     }
-    private static byte[] correct(byte[] encodedMessage, byte[] errorVector){
-        byte[] result = new byte[2];
-        return result;
+    private static byte correct(byte message, byte errorVector){
+        byte e = 0;
+        printByteBits(errorVector);
+        printByteBits(transposedH[7][0]);
+        for (int i = 0; i < 8; i++) {
+            if(errorVector == transposedH[i][0]){
+                message =(byte) (message^(0x1<<7-i));
+            }
+        }
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                byte temp =(byte) (transposedH[i][0]^transposedH[j][0]);
+                if(temp==errorVector){
+                    message =(byte) (message ^ (0x1<<7-i));
+                    message =(byte) (message ^ (0x1<<7-j));
+                }
+            }
+        }
+        return message;
     }
     private static byte decode(byte[] encodedMessage) {
-        /*byte[] vector;
-        encodedMessage = correct(encodedMessage,vector);*/
-        return encodedMessage[0];
+        byte errorVector = errorVector(encodedMessage);
+        return correct(encodedMessage[0],errorVector);
     }
     public static byte errorVector(byte[] encodedMessage){
         byte result = 0x0;
@@ -98,8 +134,7 @@ public class Main{
                     counter2++;
                 }
             }
-//            System.out.println(counter2);
-            if ((counter1+counter2) % 2 != 0){
+            if ((counter1+counter2) % 2 == 0){
                 result =(byte)(result | (0x1 << (7 - (i/2))));
             }
         }
@@ -113,27 +148,32 @@ public class Main{
         System.out.println();
     }
     public static void main(String[] args) throws IOException {
-//        Scanner scan = new Scanner(System.in);
-//        System.out.println("Podaj wiadomosc: ");
-//        String string = scan.nextLine();
-//        createFile(string,"message.txt");
-//        byte [] input = read("message.txt");
-//        StringBuilder builder = new StringBuilder();
-//        byte[] result;
-//        for (int i = 0; i <input.length ; i++) {
-//            result = encode(input[i]);
-//            for (byte b: result
-//                 ) {
-//                builder.append((char)b);
-//            }
-//        }
-//        System.out.println(builder);
-//        createFile(builder.toString(),"messageEncoded.txt");
-        byte[] input = new byte[]{'a'};
-        input=encode(input[0]);
-        test(input);
-        byte[] tab = new byte[]{96,127};
-        test(tab);
-        printByteBits(errorVector(tab));
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Podaj wiadomosc: ");
+        String string = scan.nextLine();
+        createFile(string,"message.txt");
+        byte [] input = read("message.txt");
+        StringBuilder builder = new StringBuilder();
+        byte[] result;
+        for (int i = 0; i <input.length ; i++) {
+            result = encode(input[i]);
+            for (byte b: result
+                 ) {
+                builder.append((char)b);
+            }
+        }
+        System.out.println(builder);
+        createFile(builder.toString(),"messageEncoded.txt");
+
+
+
+
+//        byte[] input = new byte[]{'a'};
+//        input=encode(input[0]);
+//        test(input);
+//        byte[] tab = new byte[]{96,127};
+//        test(tab);
+//        printByteBits(errorVector(tab));
+//        printByteBits(decode(tab));
     }
 }
