@@ -23,15 +23,15 @@ public class Main implements AutoCloseable{
             {(byte) 0x01}//  0, 0, 0, 0, 0, 0, 0, 1
     };
 
-    private static byte[] read() throws FileNotFoundException {
-        Scanner scanner = new Scanner(new File("message.txt"));
+    private static byte[] read(String fileName) throws FileNotFoundException {
+        Scanner scanner = new Scanner(new File(fileName));
         String text = scanner.nextLine();
         scanner.close();
         return text.getBytes();
     }
 
-    private static void createFile(String message) throws IOException {
-        File file = new File("message.txt");
+    private static void createFile(String message, String fileName) throws IOException {
+        File file = new File(fileName);
         file.createNewFile();
         FileWriter writer = new FileWriter(file);
         writer.write(message);
@@ -85,8 +85,8 @@ public class Main implements AutoCloseable{
         Scanner scan = new Scanner(System.in);
         System.out.println("Podaj wiadomosc: ");
         String string = scan.nextLine();
-        createFile(string);
-        byte [] input = read();
+        createFile(string,"message.txt");
+        byte [] input = read("message.txt");
         StringBuilder builder = new StringBuilder();
         byte[] result;
         for (int i = 0; i <input.length ; i++) {
