@@ -95,8 +95,6 @@ public class Main{
     }
     private static byte correct(byte message, byte errorVector){
         byte e = 0;
-        printByteBits(errorVector);
-        printByteBits(transposedH[7][0]);
         for (int i = 0; i < 8; i++) {
             if(errorVector == transposedH[i][0]){
                 message =(byte) (message^(0x1<<7-i));
@@ -155,16 +153,41 @@ public class Main{
         byte [] input = read("message.txt");
         StringBuilder builder = new StringBuilder();
         byte[] result;
+        int sum=0;
         for (int i = 0; i <input.length ; i++) {
             result = encode(input[i]);
             for (byte b: result
                  ) {
+                sum++;
                 builder.append((char)b);
             }
         }
-        System.out.println(builder);
+        System.out.println(sum); // to daje 44 przy 22 stringach, czyli git
+//        builder.deleteCharAt(-1); to nie dziala wiadomo, ale pokazuje, ze builder ma dlugosc 44, czyli .getBytes() pierdoli chyba
+//        Wydaje mi sie, że jak w tych bitach kontrolnych są "1" na najstarszym bicie to getBytes() traktuje je jako juz kolejny bajt bo to kod znaku jednak jest, ale moge pierdolic glupoty
+        System.out.println(builder.toString().getBytes().length);//a to daje 52 wtf?
+        //przy niektorych znakach pojawia sie wiecej bajtow niz 1 idk dlaczego (encode czasem daje wiecej bajtow niz x2)
         createFile(builder.toString(),"messageEncoded.txt");
-
+        System.out.println("Co chcesz teraz zrobic:\n1. Zmienić plik zakodowany i nastepnie go odkodowac.\n2. Odkodować zakodowaną przez ciebie wczesniej wiadomosc.");
+        String choice = scan.nextLine();
+        switch (choice){
+            case "1":
+//tu bedzie kod ktory pozwoli zmienic zawartosc pliku "messageEncoded"
+                break;
+            case "2":
+                StringBuilder builder2 = new StringBuilder();
+                byte[] encodeResult = builder.toString().getBytes();
+                test(encodeResult);
+                System.out.println(encodeResult.length);
+                for (int i = 0; i <encodeResult.length-1 ; i+=2) {
+                    byte[] temp = new byte[]{encodeResult[i],encodeResult[i+1]};
+                    byte decodeResult = decode(temp);
+                    builder2.append((char)decodeResult);
+                }
+                createFile(builder2.toString(),"messageDecoded.txt");
+                break;
+            default:
+        }
 
 
 
