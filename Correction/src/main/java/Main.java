@@ -58,7 +58,6 @@ public class Main{
         byte temp;
         byte[] temp2 = new byte[]{message};
         System.arraycopy(temp2, 0, result, 0, 1);
-
         for (int i = 0; i < 16; i=i+2) {
             int counter = 0;
             temp = (byte) (result[0] & H[i][0]);
@@ -68,7 +67,7 @@ public class Main{
                 }
             }
             if(counter%2!=0){
-                result[1]=(byte)((result[1]|(0x1<<7-i)));
+                result[1]=(byte)((result[1]|(0x1<<7-(i/2))));
             }
         }
         return result;
@@ -99,8 +98,9 @@ public class Main{
                     counter2++;
                 }
             }
+//            System.out.println(counter2);
             if ((counter1+counter2) % 2 != 0){
-                result =(byte)(result | (0x1 << (7 - i)));
+                result =(byte)(result | (0x1 << (7 - (i/2))));
             }
         }
         return result;
@@ -132,7 +132,7 @@ public class Main{
         byte[] input = new byte[]{'a'};
         input=encode(input[0]);
         test(input);
-        byte[] tab = new byte[]{96,42};
+        byte[] tab = new byte[]{96,127};
         test(tab);
         printByteBits(errorVector(tab));
     }
