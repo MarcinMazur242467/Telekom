@@ -1,28 +1,25 @@
 import java.io.*;
 import java.util.Scanner;
 
-public class Main implements AutoCloseable{
-    private static byte[][] messageMatrix = new byte[][]{
+public class Main{
+    private static byte[][] H = new byte[][]{
             {(byte) 0xF0}, // {1, 1, 1, 1, 0, 0, 0, 0,
-            {(byte) 0xCC},// {1, 1, 0, 0, 1, 1, 0, 0,
-            {(byte) 0xAA},// {1, 0, 1, 0, 1, 0, 1, 0,
-            {(byte) 0x56},// {0, 1, 0, 1, 0, 1, 1, 0,
-            {(byte) 0xE9},// {1, 1, 1, 0, 1, 0, 0, 1,
-            {(byte) 0x95},// {1, 0, 0, 1, 0, 1, 0, 1,
-            {(byte) 0x7B},// {0, 1, 1, 1, 1, 0, 1, 1,
-            {(byte) 0xE7}// {1, 1, 1, 0, 0, 1, 1, 1,
-    };
-    private static byte[][] identityMatrix = new byte[][]{
             {(byte) 0x80}, //   1, 0, 0, 0, 0, 0, 0, 0
+            {(byte) 0xCC},// {1, 1, 0, 0, 1, 1, 0, 0,
             {(byte) 0x40},//   0, 1, 0, 0, 0, 0, 0, 0
+            {(byte) 0xAA},// {1, 0, 1, 0, 1, 0, 1, 0,
             {(byte) 0x20},//   0, 0, 1, 0, 0, 0, 0, 0
+            {(byte) 0x56},// {0, 1, 0, 1, 0, 1, 1, 0,
             {(byte) 0x10},//   0, 0, 0, 1, 0, 0, 0, 0
+            {(byte) 0xE9},// {1, 1, 1, 0, 1, 0, 0, 1,
             {(byte) 0x08},//   0, 0, 0, 0, 1, 0, 0, 0
+            {(byte) 0x95},// {1, 0, 0, 1, 0, 1, 0, 1,
             {(byte) 0x04},//   0, 0, 0, 0, 0, 1, 0, 0
+            {(byte) 0x7B},// {0, 1, 1, 1, 1, 0, 1, 1,
             {(byte) 0x02},//   0, 0, 0, 0, 0, 0, 1, 0
+            {(byte) 0xE7},// {1, 1, 1, 0, 0, 1, 1, 1,
             {(byte) 0x01}//  0, 0, 0, 0, 0, 0, 0, 1
     };
-
     private static byte[] read(String fileName) throws FileNotFoundException {
         Scanner scanner = new Scanner(new File(fileName));
         String text = scanner.nextLine();
@@ -62,9 +59,9 @@ public class Main implements AutoCloseable{
         byte[] temp2 = new byte[]{message};
         System.arraycopy(temp2, 0, result, 0, 1);
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 16; i=i+2) {
             int counter = 0;
-            temp = (byte) (result[0] & messageMatrix[i][0]);
+            temp = (byte) (result[0] & H[i][0]);
             for (int j = 0; j < 8; j++) {
                 if (((temp >> j) & 1) == 1) {
                     counter++;
@@ -76,32 +73,67 @@ public class Main implements AutoCloseable{
         }
         return result;
     }
-//    private static byte[] decode(byte[] message) {
-//
-//    }
-
-
-    public static void main(String[] args) throws IOException {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Podaj wiadomosc: ");
-        String string = scan.nextLine();
-        createFile(string,"message.txt");
-        byte [] input = read("message.txt");
-        StringBuilder builder = new StringBuilder();
-        byte[] result;
-        for (int i = 0; i <input.length ; i++) {
-            result = encode(input[i]);
-            for (byte b: result
-                 ) {
-                builder.append((char)b);
+    private static byte[] correct(byte[] encodedMessage, byte[] errorVector){
+        byte[] result = new byte[2];
+        return result;
+    }
+    private static byte decode(byte[] encodedMessage) {
+        /*byte[] vector;
+        encodedMessage = correct(encodedMessage,vector);*/
+        return encodedMessage[0];
+    }
+    public static byte errorVector(byte[] encodedMessage){
+        byte result = 0x0;
+        for (int i = 0; i < 16; i=i+2) {
+            int counter1 = 0;
+            int counter2 = 0;
+            byte temp1 = (byte)(encodedMessage[0]&H[i][0]);
+            for (int j = 0; j < 8; j++) {
+                if (((temp1 >> j) & 1) == 1) {
+                    counter1++;
+                }
+            }
+            byte temp2 = (byte)(encodedMessage[1]&H[i+1][0]);
+            for (int j = 0; j < 8; j++) {
+                if (((temp2 >> j) & 1) == 1) {
+                    counter2++;
+                }
+            }
+            if ((counter1+counter2) % 2 != 0){
+                result =(byte)(result | (0x1 << (7 - i)));
             }
         }
-        System.out.println(builder);
-        createFile(builder.toString(),"messageEncoded.txt");
+        return result;
     }
 
-    @Override
-    public void close() throws Exception {
-
+    public static void printByteBits(byte b) {
+        for (int i = 7; i >= 0; i--) {
+            System.out.print((b >> i) & 1);
+        }
+        System.out.println();
+    }
+    public static void main(String[] args) throws IOException {
+//        Scanner scan = new Scanner(System.in);
+//        System.out.println("Podaj wiadomosc: ");
+//        String string = scan.nextLine();
+//        createFile(string,"message.txt");
+//        byte [] input = read("message.txt");
+//        StringBuilder builder = new StringBuilder();
+//        byte[] result;
+//        for (int i = 0; i <input.length ; i++) {
+//            result = encode(input[i]);
+//            for (byte b: result
+//                 ) {
+//                builder.append((char)b);
+//            }
+//        }
+//        System.out.println(builder);
+//        createFile(builder.toString(),"messageEncoded.txt");
+        byte[] input = new byte[]{'a'};
+        input=encode(input[0]);
+        test(input);
+        byte[] tab = new byte[]{96,42};
+        test(tab);
+        printByteBits(errorVector(tab));
     }
 }
