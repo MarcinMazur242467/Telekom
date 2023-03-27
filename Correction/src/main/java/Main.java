@@ -97,6 +97,7 @@ public class Main implements AutoCloseable{
             }
         }
         System.out.println(builder);
+        createFile(builder.toString(),"messageEncoded.txt");
     }
 
     @Override
