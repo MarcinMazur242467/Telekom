@@ -4,6 +4,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Main {
+
+    //	      1 1 1 1 0 0 0 0 1 0 0 0 0 0 0 0
+    //        1 1 0 0 1 1 0 0 0 1 0 0 0 0 0 0
+    //        1 0 1 0 1 0 1 0 0 0 1 0 0 0 0 0
+    //        0 1 0 1 0 1 1 0 0 0 0 1 0 0 0 0
+    //        1 1 1 0 1 0 0 1 0 0 0 0 1 0 0 0
+    //        1 0 0 1 0 1 0 1 0 0 0 0 0 1 0 0
+    //        0 1 1 1 1 0 1 1 0 0 0 0 0 0 1 0
+    //        1 1 1 0 0 1 1 1 0 0 0 0 0 0 0 1
+
+    //         1 1 1 0 1 1 0 1
+//            1 1 0 1 1 0 1 1
+//            1 0 1 0 1 0 1 1
+//            1 0 0 1 0 1 1 0
+//            0 1 1 0 1 0 1 0
+//            0 1 0 1 0 1 0 1
+//            0 0 1 1 0 1 1 1
+//            0 0 0 0 1 1 1 1
+//            1 0 0 0 0 0 0 0
+//            0 1 0 0 0 0 0 0
+//            0 0 1 0 0 0 0 0
+//            0 0 0 1 0 0 0 0
+//            0 0 0 0 1 0 0 0
+//            0 0 0 0 0 1 0 0
+//            0 0 0 0 0 0 1 0
+//            0 0 0 0 0 0 0 1
+
     public static byte[] encodingMatrix = {
             (byte) (0xF0),
             (byte) (0xCC),
@@ -22,7 +49,6 @@ public class Main {
             (short) 38148,
             (short) 31490,
             (short) 59137};
-
     private static byte[][] transposedH = new byte[][]{
             {(byte) 0xED},
             {(byte) 0xDB},
@@ -43,10 +69,13 @@ public class Main {
             {(byte) 0x1},
     };
 
+    //PLIKI
+
     private static byte[] read(String fileName) throws FileNotFoundException {
         Scanner scanner = new Scanner(new File(fileName));
         String text = scanner.nextLine();
         scanner.close();
+        test(text.getBytes(StandardCharsets.US_ASCII));
         return text.getBytes(StandardCharsets.US_ASCII);
     }
 
@@ -59,22 +88,7 @@ public class Main {
     }
 
 
-    public static void test(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        int bits = 0;
-        for (byte b : bytes) {
-            int unsignedByte = b & 0xFF;
-            String binaryString = Integer.toBinaryString(unsignedByte);
-            // Pad the binary string with leading zeros if necessary
-            while (binaryString.length() < 8) {
-                binaryString = "0" + binaryString;
-            }
-            bits++;
-            sb.append(binaryString + " ");
-        }
-        String binaryOutput = sb.toString();
-        System.out.println(binaryOutput);
-    }
+    //LOGIKA
 
     private static short encode(byte message) {
         short result = (short) ((short) (message << 8) | (short) (255));
@@ -90,6 +104,18 @@ public class Main {
         return result;
     }
 
+    public static byte errorVector(short encodedMessage) {
+        byte result = 0x0;
+        for (int i = 0; i < 8; i++) {
+            short temp = (short) (encodedMessage & H[i]);
+            if (countOnes(temp) % 2 != 0) {
+                result |= 0x1 << (7 - (byte) i);
+            }
+
+        }
+        printByteBits(result);
+        return result;
+    }
     private static byte correct(byte message, byte errorVector) {
         for (int i = 0; i < 8; i++) {
             if (errorVector == transposedH[i][0]) {
@@ -97,7 +123,7 @@ public class Main {
             }
         }
         for (int i = 0; i < 16; i++) {
-            for (int j = 1; j < 16; j++) {  // tu u kuby jest j=1
+            for (int j = i; j < 16; j++) {  // tu u kuby jest j=1
                 byte temp = (byte) (transposedH[i][0] ^ transposedH[j][0]);
                 if (temp == errorVector) {
                     message = (byte) (message ^ (0x1 << 7 - i));
@@ -116,42 +142,6 @@ public class Main {
         return correct(message, errorVector);
     }
 
-    public static int countOnes(short arr) {
-        int suma = 0;
-        for (int i = 0; i < 16; i++) {
-            suma += (arr >> i) & 1;
-        }
-        return suma;
-    }
-
-
-    public static byte errorVector(short encodedMessage) {
-        byte result = 0x0;
-        for (int i = 0; i < 8; i++) {
-            short temp = (short) (encodedMessage & H[i]);
-            if (countOnes(temp) % 2 != 0) {
-                result |= 0x1 << (7 - (byte) i);
-            }
-
-        }
-        printByteBits(result);
-        return result;
-    }
-
-    public static void printByteBits(byte b) {
-        for (int i = 7; i >= 0; i--) {
-            System.out.print((b >> i) & 1);
-        }
-        System.out.println();
-    }
-
-    public static void printBinary(short s) {
-        for (int i = 15; i >= 0; i--) {
-            System.out.print((s >> i) & 1);
-        }
-        System.out.println();
-    }
-
     public static void main(String[] args) throws IOException {
 //        //BLAD 1-bitowy
 //        byte message = (byte) 0x40;// @ w asci
@@ -161,37 +151,36 @@ public class Main {
 //        encodedMessage = (short) (encodedMessage | changedMessage);
 //        printBinary(encodedMessage);
 //        System.out.println((char) decode(encodedMessage));
-        //BLAD 2-bitowy NIE DZIALA
-        byte message = (byte) 0x40;// @ w asci
-        short encodedMessage = encode(message);
-        printBinary(encodedMessage);
-        short changedMessage = (byte) 0x9 << 10;
-        encodedMessage = (short) (encodedMessage | changedMessage);
-        printBinary(encodedMessage);
-        System.out.println((char) decode(encodedMessage));
+//        //BLAD 2-bitowy NIE DZIALA
+//        byte message = (byte) 0x40;// @ w asci
+//        short encodedMessage = encode(message);
+//        printBinary(encodedMessage);
+//        short changedMessage = (byte) 0x9 << 10;
+//        encodedMessage = (short) (encodedMessage | changedMessage);
+//        printBinary(encodedMessage);
+//        System.out.println((char) decode(encodedMessage));
 
 
 
 
-//        Scanner scan = new Scanner(System.in);
-//        System.out.println("Podaj wiadomosc: ");
-//        String string = scan.nextLine();
-//        createFile(string,"message.txt");
-//        byte [] input = read("message.txt");
-//        StringBuilder builder = new StringBuilder();
-//        byte[] result;
-////        byte[] temp = new byte[input.length*2];
-////        int sum=0;
-//        for (int i = 0; i <input.length ; i++) {
-//            result = encode(input[i]);
-////            test(result);
-//            for (byte b: result
-//            ) {
-////                temp[sum] = b;
-////                sum++;
-//                builder.append((char)b);
-//            }
-//        }
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Podaj wiadomosc: ");
+        String string = scan.nextLine();
+        createFile(string,"message.txt");
+        byte [] input = read("message.txt");
+        StringBuilder builder = new StringBuilder();
+        short encoded=0;
+        for (byte b : input) {
+            encoded = encode(b);
+            byte message = (byte) (encoded << 8);
+            builder.append((char) message);
+        }
+        System.out.println(builder.toString());
+
+
+
+
+//
 ////        System.out.println(sum); // to daje 44 przy 22 stringach, czyli git
 ////        builder.deleteCharAt(-1); to nie dziala wiadomo, ale pokazuje, ze builder ma dlugosc 44, czyli .getBytes() pierdoli chyba
 ////        Wydaje mi sie, że jak w tych bitach kontrolnych są "1" na najstarszym bicie to getBytes() traktuje je jako juz kolejny bajt bo to kod znaku jednak jest, ale moge pierdolic glupoty
@@ -218,8 +207,8 @@ public class Main {
 //        }
 //        createFile(builder3.toString(), "messageDecoded.txt");
 //
-
-
+//
+//
 //                break;
 //            case "2":
 //                StringBuilder builder2 = new StringBuilder();
@@ -237,8 +226,8 @@ public class Main {
 //            default:
 //                throw new Error("Wrong input");
 //        }
-
-
+//
+//
 //        byte[] input = new byte[]{'a'};
 //        input=encode(input[0]);
 //        test(input);
@@ -247,4 +236,44 @@ public class Main {
 //        printByteBits(errorVector(tab));
 //        printByteBits(decode(tab));
     }
+
+
+    public static int countOnes(short arr) {
+        int suma = 0;
+        for (int i = 0; i < 16; i++) {
+            suma += (arr >> i) & 1;
+        }
+        return suma;
+    }
+
+    public static void printByteBits(byte b) {
+        for (int i = 7; i >= 0; i--) {
+            System.out.print((b >> i) & 1);
+        }
+        System.out.println();
+    }
+
+    public static void printBinary(short s) {
+        for (int i = 15; i >= 0; i--) {
+            System.out.print((s >> i) & 1);
+        }
+        System.out.println();
+    }
+    public static void test(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        int bits = 0;
+        for (byte b : bytes) {
+            int unsignedByte = b & 0xFF;
+            String binaryString = Integer.toBinaryString(unsignedByte);
+            // Pad the binary string with leading zeros if necessary
+            while (binaryString.length() < 8) {
+                binaryString = "0" + binaryString;
+            }
+            bits++;
+            sb.append(binaryString + " ");
+        }
+        String binaryOutput = sb.toString();
+        System.out.println(binaryOutput);
+    }
+
 }
