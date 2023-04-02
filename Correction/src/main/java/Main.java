@@ -1,20 +1,19 @@
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Main {
 
-    //	      1 1 1 1 0 0 0 0 1 0 0 0 0 0 0 0
-    //        1 1 0 0 1 1 0 0 0 1 0 0 0 0 0 0
-    //        1 0 1 0 1 0 1 0 0 0 1 0 0 0 0 0
-    //        0 1 0 1 0 1 1 0 0 0 0 1 0 0 0 0
-    //        1 1 1 0 1 0 0 1 0 0 0 0 1 0 0 0
-    //        1 0 0 1 0 1 0 1 0 0 0 0 0 1 0 0
-    //        0 1 1 1 1 0 1 1 0 0 0 0 0 0 1 0
-    //        1 1 1 0 0 1 1 1 0 0 0 0 0 0 0 1
+//    	      1 1 1 1 0 0 0 0 1 0 0 0 0 0 0 0
+//            1 1 0 0 1 1 0 0 0 1 0 0 0 0 0 0
+//            1 0 1 0 1 0 1 0 0 0 1 0 0 0 0 0
+//            0 1 0 1 0 1 1 0 0 0 0 1 0 0 0 0
+//            1 1 1 0 1 0 0 1 0 0 0 0 1 0 0 0
+//            1 0 0 1 0 1 0 1 0 0 0 0 0 1 0 0
+//            0 1 1 1 1 0 1 1 0 0 0 0 0 0 1 0
+//            1 1 1 0 0 1 1 1 0 0 0 0 0 0 0 1
 
-    //         1 1 1 0 1 1 0 1
+//            1 1 1 0 1 1 0 1
 //            1 1 0 1 1 0 1 1
 //            1 0 1 0 1 0 1 1
 //            1 0 0 1 0 1 1 0
@@ -49,7 +48,7 @@ public class Main {
             (short) 38148,
             (short) 31490,
             (short) 59137};
-    private static byte[][] transposedH = new byte[][]{
+    private static final byte[][] transposedH = new byte[][]{
             {(byte) 0xED},
             {(byte) 0xDB},
             {(byte) 0xAB},
@@ -75,7 +74,6 @@ public class Main {
         Scanner scanner = new Scanner(new File(fileName));
         String text = scanner.nextLine();
         scanner.close();
-        test(text.getBytes(StandardCharsets.US_ASCII));
         return text.getBytes(StandardCharsets.US_ASCII);
     }
 
@@ -100,20 +98,24 @@ public class Main {
                 temp1 = (byte) ((temp1 | (0x1 << 7 - i)));
             }
         }
-        result = (short) (result & temp1);
+        short temp2 = -1;
+        temp2 = (short) (temp2<<8);
+        temp2 = ((short) (temp2|temp1));
+        result = (short) (result & temp2);
+        printBinary(result);
         return result;
     }
 
     public static byte errorVector(short encodedMessage) {
         byte result = 0x0;
         for (int i = 0; i < 8; i++) {
-            short temp = (short) (encodedMessage & H[i]);
+            byte temp = 0;
+            // TU MUSIMY PIONOWO ZLICZAC JEDYNKI Z MATRIXA JAK BIT encodedMessage jest ustawiony na jedynke z tego co wyczytalem na necie
             if (countOnes(temp) % 2 != 0) {
                 result |= 0x1 << (7 - (byte) i);
             }
 
         }
-        printByteBits(result);
         return result;
     }
     private static byte correct(byte message, byte errorVector) {
@@ -169,72 +171,36 @@ public class Main {
         createFile(string,"message.txt");
         byte [] input = read("message.txt");
         StringBuilder builder = new StringBuilder();
-        short encoded=0;
+        short encoded;
         for (byte b : input) {
             encoded = encode(b);
-            byte message = (byte) (encoded << 8);
+            byte message = (byte) (encoded>>8);
+            byte parityBits = (byte) (encoded);
+
             builder.append((char) message);
+            builder.append((char) parityBits);
         }
-        System.out.println(builder.toString());
+        System.out.println(builder);
 
+        createFile(builder.toString(),"messageEncoded.txt");
 
+        System.out.println("Wprowadz zmiany w pliku 'messageEncoded' i wpisz cokolwiek jesli juz skonczysz (jak nie chcesz zmieniac to nacisnij cokolwiek bez zmiany");
+        scan.nextLine();
+        StringBuilder builder3 = new StringBuilder();
 
+        byte[] encodeResultt = read("messageEncoded.txt");
 
-//
-////        System.out.println(sum); // to daje 44 przy 22 stringach, czyli git
-////        builder.deleteCharAt(-1); to nie dziala wiadomo, ale pokazuje, ze builder ma dlugosc 44, czyli .getBytes() pierdoli chyba
-////        Wydaje mi sie, że jak w tych bitach kontrolnych są "1" na najstarszym bicie to getBytes() traktuje je jako juz kolejny bajt bo to kod znaku jednak jest, ale moge pierdolic glupoty
-////        System.out.println(builder.toString().getBytes().length);//a to daje 52 wtf?
-////        System.out.println(builder.toString().getBytes(StandardCharsets.US_ASCII).length); // to zwraca git bloodTrail
-//        //przy niektorych znakach pojawia sie wiecej bajtow niz 1 idk dlaczego (encode czasem daje wiecej bajtow niz x2)
-//        createFile(builder.toString(),"messageEncoded.txt");
-////        System.out.println("Co chcesz teraz zrobic:\n1. Zmienić plik zakodowany i nastepnie go odkodowac.\n2. Odkodować zakodowaną przez ciebie wczesniej wiadomosc.");
-////        String choice = scan.nextLine();
-////        switch (choice) {
-////            case "1":
-////tu bedzie kod ktory pozwoli zmienic zawartosc pliku "messageEncoded"
-//        System.out.println("Wprowadz zmiany w pliku 'messageEncoded' i wpisz cokolwiek jesli juz skonczysz (jak nie chcesz zmieniac to nacisnij cokolwiek bez zmiany");
-//        scan.nextLine();
-//        StringBuilder builder3 = new StringBuilder();
-//        byte[] encodeResultt = read("messageEncoded.txt");
-////                test(temp);
-////                System.out.println(encodeResult.length);
-//        for (int i = 0; i < encodeResultt.length; i+= 2) {
-////                    byte[] temp2 = new byte[]{temp[i], temp[i + 1]};
-//            byte[] temp2 = new byte[]{encodeResultt[i], encodeResultt[i + 1]};
-//            byte decodeResult = decode(temp2);
-//            builder3.append((char) decodeResult);
-//        }
-//        createFile(builder3.toString(), "messageDecoded.txt");
-//
-//
-//
-//                break;
-//            case "2":
-//                StringBuilder builder2 = new StringBuilder();
-//                byte[] encodeResult = builder.toString().getBytes(StandardCharsets.US_ASCII);
-////                test(temp);
-////                System.out.println(encodeResult.length);
-//                for (int i = 0; i < temp.length; i+= 2) {
-////                    byte[] temp2 = new byte[]{temp[i], temp[i + 1]};
-//                    byte[] temp2 = new byte[]{encodeResult[i], encodeResult[i + 1]};
-//                    byte decodeResult = decode(temp2);
-//                    builder2.append((char) decodeResult);
-//                }
-//                    createFile(builder2.toString(), "messageDecoded.txt");
-//                    break;
-//            default:
-//                throw new Error("Wrong input");
-//        }
-//
-//
-//        byte[] input = new byte[]{'a'};
-//        input=encode(input[0]);
-//        test(input);
-//        byte[] tab = new byte[]{96,127};
-//        test(tab);
-//        printByteBits(errorVector(tab));
-//        printByteBits(decode(tab));
+        for (int i = 0; i < encodeResultt.length; i+= 2) {
+            short toBeDecoded = 0;
+            byte message = encodeResultt[i];
+            byte parityBits = encodeResultt[i + 1];
+            toBeDecoded = (short) ((short) (toBeDecoded|message)<<8);
+            toBeDecoded = (short)(toBeDecoded|parityBits);
+            byte decodeResult = decode(toBeDecoded);
+            builder3.append((char) decodeResult);
+        }
+        System.out.println(builder3);
+        createFile(builder3.toString(), "messageDecoded.txt");
     }
 
 
