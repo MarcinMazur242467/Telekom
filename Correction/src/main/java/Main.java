@@ -56,7 +56,7 @@ public class Main {
             {(byte) 0x6A},
             {(byte) 0x55},
             {(byte) 0x33},
-            {(byte) 0xF0},
+            {(byte) 0xF},
 
             {(byte) 0x80},
             {(byte) 0x40},
@@ -80,9 +80,11 @@ public class Main {
     private static void createFile(String message, String fileName) throws IOException {
         File file = new File(fileName);
         file.createNewFile();
-        FileWriter writer = new FileWriter(file);
-        writer.write(message);
-        writer.close();
+        try (FileOutputStream output = new FileOutputStream(file)) {
+            output.write(message.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -102,30 +104,34 @@ public class Main {
         temp2 = (short) (temp2<<8);
         temp2 = ((short) (temp2|temp1));
         result = (short) (result & temp2);
-        printBinary(result);
+//        printBinary(result);
         return result;
     }
+
 
     public static byte errorVector(short encodedMessage) {
         byte result = 0x0;
         for (int i = 0; i < 8; i++) {
-            byte temp = 0;
-            // TU MUSIMY PIONOWO ZLICZAC JEDYNKI Z MATRIXA JAK BIT encodedMessage jest ustawiony na jedynke z tego co wyczytalem na necie
+            short temp = (short) (encodedMessage & H[i]);
             if (countOnes(temp) % 2 != 0) {
                 result |= 0x1 << (7 - (byte) i);
             }
 
         }
+//        printByteBits(result);
         return result;
     }
     private static byte correct(byte message, byte errorVector) {
         for (int i = 0; i < 8; i++) {
+//            System.out.println(i);
+//            printByteBits(errorVector);
+//            printByteBits(transposedH[i][0]);
             if (errorVector == transposedH[i][0]) {
                 message = (byte) (message ^ (0x1 << 7 - i));
             }
         }
         for (int i = 0; i < 16; i++) {
-            for (int j = i; j < 16; j++) {  // tu u kuby jest j=1
+            for (int j = i; j < 16; j++) {
                 byte temp = (byte) (transposedH[i][0] ^ transposedH[j][0]);
                 if (temp == errorVector) {
                     message = (byte) (message ^ (0x1 << 7 - i));
@@ -139,7 +145,7 @@ public class Main {
     private static byte decode(short encodedMessage) {
         byte errorVector = errorVector(encodedMessage);
         byte message = 0;
-        message = (byte) (message | encodedMessage >> 8);
+        message = (byte) (encodedMessage >> 8 & 255);
 
         return correct(message, errorVector);
     }
@@ -164,7 +170,6 @@ public class Main {
 
 
 
-
         Scanner scan = new Scanner(System.in);
         System.out.println("Podaj wiadomosc: ");
         String string = scan.nextLine();
@@ -172,11 +177,13 @@ public class Main {
         byte [] input = read("message.txt");
         StringBuilder builder = new StringBuilder();
         short encoded;
-        for (byte b : input) {
-            encoded = encode(b);
+        byte [] parityArr = new byte[input.length];
+        for (int i = 0; i < input.length; i++) {
+            encoded = encode(input[i]);
             byte message = (byte) (encoded>>8);
             byte parityBits = (byte) (encoded);
-
+            parityArr[i] = parityBits;
+//            printByteBits(parityArr[i]);
             builder.append((char) message);
             builder.append((char) parityBits);
         }
@@ -184,19 +191,26 @@ public class Main {
 
         createFile(builder.toString(),"messageEncoded.txt");
 
-        System.out.println("Wprowadz zmiany w pliku 'messageEncoded' i wpisz cokolwiek jesli juz skonczysz (jak nie chcesz zmieniac to nacisnij cokolwiek bez zmiany");
+        System.out.println("Wprowadz zmiany w pliku 'message.txt' i wpisz cokolwiek jesli juz skonczysz (jak nie chcesz zmieniac to nacisnij cokolwiek bez zmiany");
         scan.nextLine();
         StringBuilder builder3 = new StringBuilder();
 
-        byte[] encodeResultt = read("messageEncoded.txt");
-
-        for (int i = 0; i < encodeResultt.length; i+= 2) {
+//        byte[] encodeResultt = read("messageEncoded.txt");
+        byte[] betterEncodeResult = new byte[input.length*2];
+        byte[] changedMessage = read("message.txt");
+        for (int i = 0; i < input.length; i++) {
+            betterEncodeResult[2*i] = changedMessage[i];
+            betterEncodeResult[2*i+1] = parityArr[i];
+        }
+        for (int i = 0; i < betterEncodeResult.length; i+= 2) {
             short toBeDecoded = 0;
-            byte message = encodeResultt[i];
-            byte parityBits = encodeResultt[i + 1];
+            byte message = betterEncodeResult[i];
+            byte parityBits = betterEncodeResult[i + 1];
             toBeDecoded = (short) ((short) (toBeDecoded|message)<<8);
-            toBeDecoded = (short)(toBeDecoded|parityBits);
+            toBeDecoded = (short)(toBeDecoded|(parityBits&0x00FF));
+//            printBinary(toBeDecoded);
             byte decodeResult = decode(toBeDecoded);
+//            printByteBits(decodeResult);
             builder3.append((char) decodeResult);
         }
         System.out.println(builder3);
