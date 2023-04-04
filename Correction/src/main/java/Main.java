@@ -104,7 +104,6 @@ public class Main {
         temp2 = (short) (temp2<<8);
         temp2 = ((short) (temp2|temp1));
         result = (short) (result & temp2);
-//        printBinary(result);
         return result;
     }
 
@@ -118,14 +117,10 @@ public class Main {
             }
 
         }
-//        printByteBits(result);
         return result;
     }
     private static byte correct(byte message, byte errorVector) {
         for (int i = 0; i < 8; i++) {
-//            System.out.println(i);
-//            printByteBits(errorVector);
-//            printByteBits(transposedH[i][0]);
             if (errorVector == transposedH[i][0]) {
                 message = (byte) (message ^ (0x1 << 7 - i));
             }
@@ -146,30 +141,10 @@ public class Main {
         byte errorVector = errorVector(encodedMessage);
         byte message = 0;
         message = (byte) (encodedMessage >> 8 & 255);
-
         return correct(message, errorVector);
     }
 
     public static void main(String[] args) throws IOException {
-//        //BLAD 1-bitowy
-//        byte message = (byte) 0x40;// @ w asci
-//        short encodedMessage = encode(message);
-//        printBinary(encodedMessage);
-//        short changedMessage = (byte) 0x1 << 9;
-//        encodedMessage = (short) (encodedMessage | changedMessage);
-//        printBinary(encodedMessage);
-//        System.out.println((char) decode(encodedMessage));
-//        //BLAD 2-bitowy NIE DZIALA
-//        byte message = (byte) 0x40;// @ w asci
-//        short encodedMessage = encode(message);
-//        printBinary(encodedMessage);
-//        short changedMessage = (byte) 0x9 << 10;
-//        encodedMessage = (short) (encodedMessage | changedMessage);
-//        printBinary(encodedMessage);
-//        System.out.println((char) decode(encodedMessage));
-
-
-
         Scanner scan = new Scanner(System.in);
         System.out.println("Podaj wiadomosc: ");
         String string = scan.nextLine();
@@ -183,19 +158,14 @@ public class Main {
             byte message = (byte) (encoded>>8);
             byte parityBits = (byte) (encoded);
             parityArr[i] = parityBits;
-//            printByteBits(parityArr[i]);
             builder.append((char) message);
             builder.append((char) parityBits);
         }
         System.out.println(builder);
-
         createFile(builder.toString(),"messageEncoded.txt");
-
         System.out.println("Wprowadz zmiany w pliku 'message.txt' i wpisz cokolwiek jesli juz skonczysz (jak nie chcesz zmieniac to nacisnij cokolwiek bez zmiany");
         scan.nextLine();
         StringBuilder builder3 = new StringBuilder();
-
-//        byte[] encodeResultt = read("messageEncoded.txt");
         byte[] betterEncodeResult = new byte[input.length*2];
         byte[] changedMessage = read("message.txt");
         for (int i = 0; i < input.length; i++) {
@@ -208,9 +178,7 @@ public class Main {
             byte parityBits = betterEncodeResult[i + 1];
             toBeDecoded = (short) ((short) (toBeDecoded|message)<<8);
             toBeDecoded = (short)(toBeDecoded|(parityBits&0x00FF));
-//            printBinary(toBeDecoded);
             byte decodeResult = decode(toBeDecoded);
-//            printByteBits(decodeResult);
             builder3.append((char) decodeResult);
         }
         System.out.println(builder3);
@@ -245,7 +213,6 @@ public class Main {
         for (byte b : bytes) {
             int unsignedByte = b & 0xFF;
             String binaryString = Integer.toBinaryString(unsignedByte);
-            // Pad the binary string with leading zeros if necessary
             while (binaryString.length() < 8) {
                 binaryString = "0" + binaryString;
             }
