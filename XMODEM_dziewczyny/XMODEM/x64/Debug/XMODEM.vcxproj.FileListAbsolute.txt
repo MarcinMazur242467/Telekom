@@ -1,0 +1,2 @@
+C:\Workspace\Telekom\XMODEM\XMODEM\x64\Debug\Receive.exe
+C:\Workspace\Telekom\Telekom\XMODEM\XMODEM\x64\Debug\Receive.exe
