@@ -82,8 +82,8 @@ int main()
 {
     system("cls");
     cout << "XMODEM - Receiver" << endl;
-    numerPortu = L"COM2";
-    cout << "Port: COM 2" << endl;
+    numerPortu = L"COM4";
+    cout << "Port: COM 4" << endl;
 
     if (ustawieniaPortu(numerPortu) == false)  return 0;
 
@@ -217,6 +217,6 @@ int main()
 
     plik.close();
     CloseHandle(uchwytPortu);
-
+    std::cin.get();
     return 0;
 }

@@ -68,8 +68,8 @@ int main()
     bool czyPoprawnyPakiet;
     int nrBloku = 1;
     char blok[128]; /* Plik dzielimy na bloki o długości 128 bajtów. */
-    numerPortu = L"COM1";
-    cout << "Port: COM1" << endl;
+    numerPortu = L"COM5";
+    cout << "Port: COM5" << endl;
 
     if (ustawieniaPortu(numerPortu) == false)  return 0;
 
@@ -178,6 +178,6 @@ int main()
         if (znak == ACK) break;
     }
     CloseHandle(uchwytPortu);
-
+    std::cin.get();
     return 0;
 }
