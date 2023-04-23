@@ -1,6 +1,6 @@
 #include <iostream>
 #include "PORTInit.h"
-#include <Cmath>
+
 
 unsigned long len = sizeof(ACK);
 
@@ -30,17 +30,14 @@ unsigned char calculate_checksum(char data[128]) {
 int main() {
     bool CRCFlag;
     bool isCorrectPacket;
-    bool connection;
     char buffer;
     char block[128];
-    int packetNumber=1;
-    char blockComplement;
-    unsigned long buffLen = sizeof(C);
+    int packetNumber = 1;
     char packet[133];
 
 
     system("cls");
-    PORT = "COM2";
+    PORT = "COM5";
     cout << "XMODEM - RECEIVER" << endl;
     cout << "Port: " << PORT << endl;
 
@@ -57,56 +54,71 @@ int main() {
     if (buffer == NAK) {
         if (CRCFlag) {
             WriteFile(PORTHandle, &C, 1, &len, nullptr);
-            cout << "Connection established! Mode CRC" << endl;
+            cout << "\nConnection established! Mode CRC" << endl;
         } else {
             WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
-            cout << "Connection established! Mode CS" << endl;
+            cout << "\nConnection established! Mode CS" << endl;
         }
     } else {
-        cout << "Connection FAILED!" << endl;
+        cout << "\nConnection FAILED!" << endl;
         exit(-1);
     }
-    ofstream file("../doOdebrania.txt",ios::binary);
-    ReadFile(PORTHandle, &packet, 133, &len, nullptr);
-    int j = 0;
-    for (int i = 3; i < 131; i++) {
-        block[j] = packet[i];
-        j++;
-    }
-    int packetNumberfromPackt = (int)packet[1];
+    ofstream file("../doOdebrania.txt", ios::binary);
+    while (true) {
+        //Reading packet
+        ReadFile(PORTHandle, &packet, 133, &len, nullptr);
 
-    if (CRCFlag) {
-        uint16_t crcFromPacket = ((uint16_t) packet[131] << 8) | (uint16_t) packet[132];
-        if (calculate_crc(block) == crcFromPacket && packetNumber ==packetNumberfromPackt){
-            cout << "Packet " <<packetNumber<<" has been received. ";
-            cout << "Sending ACK for packet no. " <<packetNumber<<"."<<endl;
-            WriteFile(PORTHandle,&ACK,1,&len,nullptr);
+        //Reading block and packet number
+        int j = 0;
+        for (int i = 3; i < 131; i++) {
+            block[j] = packet[i];
+            j++;
+        }
+        int packetNumberfromPackt = (int) packet[1];
+
+        //Checking the packet
+        if (CRCFlag) {//CRC
+            uint16_t crcFromPacket = ((uint16_t) packet[131] << 8) | (uint16_t) packet[132];
+            if (calculate_crc(block) == crcFromPacket) {
+                isCorrectPacket = true;
+            } else {
+                isCorrectPacket =false;
+            }
+        } else {//CS
+            if (calculate_checksum(block) == packet[131]) {
+                isCorrectPacket=true;
+            } else {
+                isCorrectPacket =false;
+            }
+        }
+
+        //Sending ACK or NAC
+        if (isCorrectPacket) {
+            cout << "Packet " << packetNumberfromPackt << " has been received. ";
+            cout << "Sending ACK for packet no. " << packetNumber << "." << endl;
+            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
             for (int i = 0; i < 128; ++i) {
                 file << block[i];
             }
-        }
-        else {
-            cout << "Packet " <<packetNumber<<" has been received. ";
-            cout << "Sending NAK for packet no. " <<packetNumber<<". ERROR!"<<endl;
-            WriteFile(PORTHandle,&NAK,1,&len,nullptr);
-        }
-    } else {
-        if (calculate_checksum(block) == packet[131] && packetNumber == packetNumberfromPackt) {
-            cout << "Packet " << packetNumber << " has been received. ";
-            cout << "Sending ACK for packet no. " << packetNumber << "." << endl;
-            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
-            cout << (int)block[67];
-            for (int i = 0; i < 128; ++i) {
-                cout << (int)block[i];
-                file << (int)block[i];
-            }
         } else {
-            cout << "Packet " << packetNumber << " has been received. ";
+            cout << "Packet " << packetNumberfromPackt << " has been received but is corrupted. ";
             cout << "Sending NAK for packet no. " << packetNumber << ". ERROR!" << endl;
             WriteFile(PORTHandle, &NAK, 1, &len, nullptr);
         }
+        packetNumber++;
+        buffer = 0;
+        ReadFile(PORTHandle,&buffer,1,&len,nullptr);
+        if(buffer == EOT){
+            cout <<"\nEnd of transmission! File transferred successfully!"<<endl;
+            break;
+        }else if(buffer == ACK){
+            continue;
+        }
     }
+    WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
     file.close();
+    CloseHandle(PORTHandle);
+    return 0;
 
 
 
@@ -310,8 +322,5 @@ int main() {
 //            else cout << "Odebrano pliki!" << endl;
 //            std::cin.get();
 //        }
-    file.close();
-    CloseHandle(PORTHandle);
-    std::cin.get();
-    return 0;
+
 }

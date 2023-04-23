@@ -20,7 +20,6 @@ DCB             PORTConfiguration;   // struktura kontroli portu szeregowego
 COMSTAT         PORTStat;            // dodatkowa informacja o zasobach portu
 DWORD           PORTError;                   // reprezentuje typ ewentualnego błędu
 COMMTIMEOUTS    PORTTime;
-USHORT          CRCTmp;
 
 /* NADANIE PORTOWI PARAMETROW + OTWORZENIE GO */
 bool port_init(LPCTSTR PORT) {

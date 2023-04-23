@@ -1,14 +1,13 @@
 #include <iostream>
-#include <mapidefs.h>
 #include "PORTInit.h"
 
 unsigned long len = sizeof(ACK);
 
 
-uint16_t calculate_crc(char data []) {
+uint16_t calculate_crc(char data[]) {
     uint16_t crc = 0;
     for (int i = 0; i < 16; i++) {
-        crc = crc ^ ((uint16_t)data[i] << 8);
+        crc = crc ^ ((uint16_t) data[i] << 8);
         for (uint8_t j = 0; j < 8; j++) {
             if (crc & 0x8000) {
                 crc = (crc << 1) ^ 0x1021;
@@ -43,10 +42,10 @@ void sentPacketCS(unsigned char packetNumber, char dataPayload[128]) {
         j++;
     }
     packet[131] = calculate_checksum(dataPayload);
-    packet[132] = (char) 65;
     WriteFile(PORTHandle, &packet, 132, &len, nullptr);
-    cout << "Packet " << (int)packetNumber << " has been sent... ";
+    cout << "Packet " << (int) packetNumber << " has been sent... ";
 }
+
 void sentPacketCRC(unsigned char packetNumber, char dataPayload[128]) {
     char packet[133];
     char complement = (unsigned char) 255 - packetNumber;
@@ -61,11 +60,13 @@ void sentPacketCRC(unsigned char packetNumber, char dataPayload[128]) {
         packet[i] = dataPayload[j];
         j++;
     }
+
+
     uint16_t crc = calculate_crc(dataPayload);
-    packet[131] = (uint8_t)((crc >> 8) & 0xFF);
-    packet[132] = (uint8_t)(crc & 0xFF);
+    packet[131] = (uint8_t) ((crc >> 8) & 0xFF);
+    packet[132] = (uint8_t) (crc & 0xFF);
     WriteFile(PORTHandle, &packet, 133, &len, nullptr);
-    cout << "Packet " << (int)packetNumber << " has been sent...";
+    cout << "Packet " << (int) packetNumber << " has been sent...";
 }
 
 int main() {
@@ -75,17 +76,18 @@ int main() {
     int packetCount = 1;
 
     system("cls");
-    PORT = "COM3";
+    PORT = "COM4";
     cout << "XMODEM - SENDER" << endl;
     cout << "Port: " << PORT << endl;
 
+    //Initializing port
     if (!port_init(PORT)) {
         cout << "Port initialization FAILURE!" << endl;
         return -1;
     }
     cout << "Port initialized!\n" << endl;
 
-
+    //Establishing connection
     WriteFile(PORTHandle, &NAK, 1, &len, nullptr);
     ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
     if (buffer == ACK) {
@@ -98,25 +100,45 @@ int main() {
         cout << "Connection FAILED!" << endl;
         exit(-1);
     }
-    buffer=0;
+
+    buffer = 0;
     ifstream file("doWyslania.txt", ios::binary);
 
-    for (int i = 0; i < 128; ++i) {
-        block[i] = file.get();
-    }
-    if (CRCFlag) {
-        sentPacketCRC(packetCount,block);
+    while (!file.eof()) {
+        //READING BLOCK
+        for (int i = 0; i < 128; ++i) {
+            block[i] = file.get();
+        }
+        //Sending packet in CRC or SC
+        if (CRCFlag) {
+            sentPacketCRC(packetCount, block);
+        } else {
+            sentPacketCS(packetCount, block);
+        }
 
-    } else {
-        sentPacketCS(packetCount,block);
-    }
+        //Waiting for ACK or NAK or CAN
+        buffer = 0;
+        ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
+        if (buffer == ACK) {
+            cout << "ACK received from packet no. " << packetCount<<endl;
+        } else if (buffer == NAK) {
+            cout << "NAC received from packet no. " << packetCount << " Retransmition needed!"<<endl;
+        } else if(buffer == CAN) return -1;
 
-    ReadFile(PORTHandle,&buffer,1,&len,nullptr);
-    if(buffer == ACK){
-        cout << "ACK received from packet no. " <<packetCount;
-    }else if(buffer == NAK){
-        cout << "NAC received from packet no. " <<packetCount<<" Retransmition needed!";
+        packetCount++;
+
+        //EOT
+        if(file.eof() == 1 ){
+            WriteFile(PORTHandle, &EOT, 1, &len, nullptr);
+        }else{
+            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
+        }
+
     }
+    cout << "\nEnd of file!" <<endl;
+    file.close();
+    CloseHandle(PORTHandle);
+    return 0;
 
 
 //    while(!file.eof()){
