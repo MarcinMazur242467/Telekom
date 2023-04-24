@@ -27,7 +27,7 @@ unsigned char calculate_checksum(char data[128]) {
     return checksum;
 }
 
-bool checkPacket(bool CRCFlag){
+bool checkPacket(bool CRCFlag) {
     char packet[133];
     char block[128];
 
@@ -64,8 +64,8 @@ int main() {
     bool isCorrectPacket;
     char buffer;
     char block[128];
+    bool flaga;
     int packetNumber = 1;
-
 
 
     system("cls");
@@ -124,7 +124,7 @@ int main() {
                 isCorrectPacket = false;
             }
         }
-
+        cout << packet << endl;
         //Sending ACK or NAC
         if (isCorrectPacket) {
             cout << "Packet " << packetNumberfromPackt << " has been received. ";
@@ -138,7 +138,7 @@ int main() {
             cout << "Sending NAK for packet no. " << packetNumber << ". ERROR!" << endl;
             WriteFile(PORTHandle, &NAK, 1, &len, nullptr);
             for (int i = 0; i < 5; ++i) {
-                if(checkPacket(CRCFlag)){
+                if (checkPacket(CRCFlag)) {
                     cout << "Packet " << packetNumberfromPackt << " has been received. ";
                     cout << "Sending ACK for packet no. " << packetNumber << "." << endl;
                     WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
@@ -146,7 +146,7 @@ int main() {
                         file << block[i];
                     }
                     break;
-                }else{
+                } else {
                     cout << "Packet " << packetNumberfromPackt << " has been received but is corrupted. ";
                     cout << "Sending NAK for packet no. " << packetNumber << ". ERROR!" << endl;
                     WriteFile(PORTHandle, &NAK, 1, &len, nullptr);
@@ -154,14 +154,19 @@ int main() {
             }
         }
         packetNumber++;
-        buffer = 0;
-        ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
-        if (buffer == EOT) {
-            cout << "\nEnd of transmission! File transferred successfully!" << endl;
-            break;
-        } else if (buffer == ACK) {
-            continue;
+//        cout << "Waiting for something????"<<endl;
+        for (int i = 0; i < 2; ++i) {
+            buffer = 0;
+            ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
+            if (buffer == EOT) {
+                cout << "\nEnd of transmission! File transferred successfully!" << endl;
+                flaga = true;
+                break;
+            } else if (buffer == ACK) {
+                continue;
+            }
         }
+        if(flaga) break;
     }
     WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
     file.close();

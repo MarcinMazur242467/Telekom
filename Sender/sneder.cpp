@@ -103,7 +103,7 @@ int main() {
     buffer = 0;
     ifstream file("doWyslania.txt", ios::binary);
 
-    while (!file.eof()) {
+    while (true) {
         //READING BLOCK
         for (int i = 0; i < 128; ++i) {
             block[i] = file.get();
@@ -144,12 +144,24 @@ int main() {
         //EOT
         if (file.eof() == 1) {
             WriteFile(PORTHandle, &EOT, 1, &len, nullptr);
+            cout << "Sending EOT" << endl;
+            buffer =0;
+            char dupsko;
+            ReadFile(PORTHandle, &dupsko, 1, &len, nullptr);
+            if(dupsko == ACK){
+                cout << "\nEnd of file!" << endl;
+            }else{
+                for (int i = 0; i < 5; ++i) {
+                    WriteFile(PORTHandle, &EOT, 1, &len, nullptr);
+                }
+            }
+            break;
+
         } else {
             WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
         }
 
     }
-    cout << "\nEnd of file!" << endl;
     file.close();
     CloseHandle(PORTHandle);
     return 0;
