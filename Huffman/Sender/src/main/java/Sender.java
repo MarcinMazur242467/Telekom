@@ -5,11 +5,22 @@ import java.net.Socket;
 
 public class Sender {
     public static void main(String[] args) throws IOException {
+
+        String filePath = "D:\\JavaProjects\\Telekom\\Huffman\\Sender\\doSzyfrowania.txt";
+        String fileContent;
+
+        try {
+            // Odczytaj zawartość pliku i zapisz jako ciąg znaków
+            fileContent = HuffmanEncoding.readFileToString(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         // szyfrowanie
-        String input = "ala ma kota";
-        HuffmanNode root = HuffmanEncoding.buildHuffmanTable(input);
-        String encoded = HuffmanEncoding.encode(input, root);
+        HuffmanNode root = HuffmanEncoding.buildHuffmanTable(fileContent);
+        String encoded = HuffmanEncoding.encode(fileContent, root);
         System.out.println("Encoded: " + encoded);
+
 
         // wysylanie
         Socket socket = new Socket("127.0.0.1", 6666);

@@ -29,5 +29,21 @@ public class Reveiver {
         // decode
         String decoded = HuffmanDecoding.decode(message, root);
         System.out.println("Decoded: " + decoded);
+
+        try {
+            FileWriter writer = new FileWriter("D:\\JavaProjects\\Telekom\\Huffman\\Receiver\\poDeszyfrowaniu.txt");
+
+            // Tworzenie obiektu BufferedWriter dla wydajnego zapisu
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+            // Zapisywanie zawartości do pliku
+            bufferedWriter.write(decoded);
+
+            // Zamykanie BufferedWriter
+            bufferedWriter.close();
+        } catch (Exception e){
+            throw new IOException(e);
+        }
+
     }
 }

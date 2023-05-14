@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -53,4 +57,11 @@ public class HuffmanEncoding {
 
         return encoded.toString();
     }
+
+    public static String readFileToString(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        byte[] encodedBytes = Files.readAllBytes(path);
+        return new String(encodedBytes);
+    }
+
 }
