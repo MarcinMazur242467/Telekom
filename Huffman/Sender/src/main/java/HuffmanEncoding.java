@@ -3,7 +3,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 public class HuffmanEncoding {
-    public static Map<Character, String> buildHuffmanTable(String input) {
+    public static HuffmanNode buildHuffmanTable(String input) {
         Map<Character, Integer> frequencyTable = buildFrequencyTable(input);
         PriorityQueue<HuffmanNode> priorityQueue = new PriorityQueue<>();
 
@@ -19,11 +19,7 @@ public class HuffmanEncoding {
             priorityQueue.offer(parent);
         }
 
-        HuffmanNode root = priorityQueue.poll();
-        Map<Character, String> huffmanTable = new HashMap<>();
-        buildHuffmanTableRecursive(root, "", huffmanTable);
-
-        return huffmanTable;
+        return priorityQueue.poll();
     }
 
     private static void buildHuffmanTableRecursive(HuffmanNode node, String code, Map<Character, String> huffmanTable) {
@@ -46,8 +42,9 @@ public class HuffmanEncoding {
         return frequencyTable;
     }
 
-    public static String encode(String input) {
-        Map<Character, String> huffmanTable = buildHuffmanTable(input);
+    public static String encode(String input, HuffmanNode root) {
+        Map<Character, String> huffmanTable = new HashMap<>();
+        buildHuffmanTableRecursive(root, "", huffmanTable);
         StringBuilder encoded = new StringBuilder();
 
         for (char c : input.toCharArray()) {

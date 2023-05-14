@@ -1,4 +1,6 @@
-public class HuffmanNode implements Comparable<HuffmanNode> {
+import java.io.Serializable;
+
+public class HuffmanNode implements Comparable<HuffmanNode>, Serializable {
     int freq;
     char c;
     HuffmanNode left;
