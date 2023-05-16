@@ -73,6 +73,8 @@ int main() {
     char buffer;
     bool CRCFlag;
     int packetCount = 1;
+    int counter=0;
+    bool theSamePacket= false;
 
     system("cls");
     PORT = "COM2";
@@ -87,9 +89,8 @@ int main() {
     cout << "Port initialized!\n" << endl;
 
     //Establishing connection
-    WriteFile(PORTHandle, &NAK, 1, &len, nullptr);
     ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
-    if (buffer == ACK) {
+    if (buffer == NAK) {
         cout << "Connection established! Mode: CS" << endl;
         CRCFlag = false;
     } else if (buffer == C) {
@@ -104,10 +105,14 @@ int main() {
     ifstream file("doWyslania.txt", ios::binary);
 
     while (!file.eof()) {
+
         //READING BLOCK
-        for (int i = 0; i < 128; ++i) {
-            block[i] = file.get();
+        if(!theSamePacket){
+            for (int i = 0; i < 128; ++i) {
+                block[i] = file.get();
+            }
         }
+
         //Sending packet in CRC or SC
         if (CRCFlag) {
             sentPacketCRC(packetCount, block);
@@ -122,9 +127,12 @@ int main() {
             cout << "ACK received from packet no. " << packetCount<<endl;
         } else if (buffer == NAK) {
             cout << "NAC received from packet no. " << packetCount << " Retransmition needed!"<<endl;
+            theSamePacket = true;
+            if(counter == 10) {cout<<"PACKET TRANSMITION FAILED";break;}
+            counter++;
             continue;
         } else if(buffer == CAN) return -1;
-
+        theSamePacket = false;
         packetCount++;
 
         //EOT

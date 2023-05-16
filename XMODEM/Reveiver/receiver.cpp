@@ -35,6 +35,7 @@ int main() {
     int packetNumber = 1;
     char packet[133];
     bool theSamePacket;
+    int counter=0;
 
 
     system("cls");
@@ -51,19 +52,15 @@ int main() {
     cout << "Choose mode:\n[0]CheckSum\n[1]CRC\n";
     cin >> CRCFlag;
 
-    ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
-    if (buffer == NAK) {
-        if (CRCFlag) {
-            WriteFile(PORTHandle, &C, 1, &len, nullptr);
-            cout << "\nConnection established! Mode CRC" << endl;
-        } else {
-            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
-            cout << "\nConnection established! Mode CS" << endl;
-        }
-    } else {
-        cout << "\nConnection FAILED!" << endl;
-        exit(-1);
+    //Establishing connection
+    if(CRCFlag){
+        WriteFile(PORTHandle, &C, 1, &len, nullptr);
+        cout << "\nConnection established! Mode CRC" << endl;
+    }else{
+        WriteFile(PORTHandle, &NAK, 1, &len, nullptr);
+        cout << "\nConnection established! Mode CS" << endl;
     }
+
     ofstream file("../doOdebrania.txt", ios::binary);
     while (true) {
         //Reading packet
@@ -79,7 +76,6 @@ int main() {
         }
 
         int packetNumberfromPackt = (int) packet[1];
-
         //Checking the packet
         if (CRCFlag) {//CRC
             uint16_t crcFromPacket = ((uint16_t) packet[131] << 8) | (uint16_t) packet[132];
@@ -109,6 +105,8 @@ int main() {
             cout << "Packet " << packetNumberfromPackt << " has been received but is corrupted. ";
             cout << "Sending NAK for packet no. " << packetNumber << ". ERROR!" << endl;
             theSamePacket = true;
+            if(counter == 10) {cout<<"PACKET TRANSMITION FAILED";break;}
+            counter++;
             continue;
         }
         theSamePacket=false;
