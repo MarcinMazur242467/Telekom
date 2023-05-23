@@ -1,3 +1,0 @@
-C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug/CMakeFiles/Reveiver.dir
-C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug/CMakeFiles/rebuild_cache.dir

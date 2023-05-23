@@ -1,6 +1,14 @@
 #include <iostream>
 #include "PORTInit.h"
 
+void printBits(unsigned short num) {
+    for (int i = 15; i >= 0; i--) {
+        unsigned short mask = 1 << i;
+        unsigned short bit = (num & mask) >> i;
+        std::cout << static_cast<int>(bit);
+    }
+    std::cout << std::endl;
+}
 unsigned long len = sizeof(ACK);
 
 uint16_t calculate_crc(char data[]) {
@@ -68,6 +76,9 @@ void sentPacketCRC(unsigned char packetNumber, char dataPayload[128]) {
     cout << "Packet " << (int) packetNumber << " has been sent...";
 }
 
+
+
+
 int main() {
     char block[128];
     char buffer;
@@ -77,7 +88,7 @@ int main() {
     bool theSamePacket= false;
 
     system("cls");
-    PORT = "COM2";
+    PORT = "COM4";
     cout << "XMODEM - SENDER" << endl;
     cout << "Port: " << PORT << endl;
 
@@ -104,7 +115,7 @@ int main() {
     buffer = 0;
     ifstream file("doWyslania.txt", ios::binary);
 
-    while (!file.eof()) {
+    while (true) {
 
         //READING BLOCK
         if(!theSamePacket){
@@ -123,17 +134,19 @@ int main() {
         //Waiting for ACK or NAK or CAN
         buffer = 0;
         ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
-        if (buffer == ACK) {
-            cout << "ACK received from packet no. " << packetCount<<endl;
-        } else if (buffer == NAK) {
-            cout << "NAC received from packet no. " << packetCount << " Retransmition needed!"<<endl;
-            theSamePacket = true;
-            if(counter == 10) {cout<<"PACKET TRANSMITION FAILED";break;}
-            counter++;
-            continue;
-        } else if(buffer == CAN) return -1;
-        theSamePacket = false;
-        packetCount++;
+        cout << (int)buffer << " ";
+
+//        if (buffer == ACK ) {
+//            cout << "ACK received from packet no. " << packetCount<<endl;
+//        } else if (buffer == NAK or buffer == C) {
+//            cout << "NAC received from packet no. " << packetCount << " Retransmition needed!"<<endl;
+//            theSamePacket = true;
+//            if(counter == 10) {cout<<"PACKET TRANSMITION FAILED";break;}
+//            counter++;
+//            continue;
+//        } else if(buffer == CAN) return -1;
+//        theSamePacket = false;
+//        packetCount++;
 
         //EOT
         if(file.eof() == 1 ){
@@ -146,9 +159,10 @@ int main() {
                 }
             }
             break;
-        }else{
-            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
         }
+//        else{
+//            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
+//        }
 
     }
     cout << "\nEnd of file!" <<endl;

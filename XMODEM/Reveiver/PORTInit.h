@@ -9,7 +9,7 @@ using namespace std;
 const char SOH = 0x1;   // Start Of Heading
 const char EOT = 0x4;   // End Of Transmission
 const char ACK = 0x6;   // Acknowledge
-const char NAK = 0xF;   // Negative Acknowledge
+const char NAK = 0x15;   // Negative Acknowledge
 const char CAN = (char)18; // Cancel
 const char C = 0x43;
 
