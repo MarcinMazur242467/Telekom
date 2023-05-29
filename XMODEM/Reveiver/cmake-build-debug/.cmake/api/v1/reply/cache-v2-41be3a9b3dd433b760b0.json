@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug"
+			"value" : "c:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -643,7 +643,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug/CMakeFiles/pkgRedirects"
+			"value" : "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver/cmake-build-debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -715,7 +715,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver"
+			"value" : "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1335,7 +1335,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug"
+			"value" : "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver/cmake-build-debug"
 		},
 		{
 			"name" : "Reveiver_IS_TOP_LEVEL",
@@ -1359,7 +1359,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver"
+			"value" : "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver"
 		},
 		{
 			"name" : "_CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED",

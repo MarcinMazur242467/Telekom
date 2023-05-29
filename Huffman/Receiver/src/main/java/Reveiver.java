@@ -31,7 +31,7 @@ public class Reveiver {
         System.out.println("Decoded: " + decoded);
 
         try {
-            FileWriter writer = new FileWriter("D:\\JavaProjects\\Telekom\\Huffman\\Receiver\\poDeszyfrowaniu.txt");
+            FileWriter writer = new FileWriter(".\\poDeszyfrowaniu.txt");
 
             // Tworzenie obiektu BufferedWriter dla wydajnego zapisu
             BufferedWriter bufferedWriter = new BufferedWriter(writer);

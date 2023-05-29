@@ -11,17 +11,16 @@ void printBits(unsigned short num) {
 }
 unsigned long len = sizeof(ACK);
 
-uint16_t calculate_crc(char data[]) {
-    uint16_t crc = 0;
-    for (int i = 0; i < 16; i++) {
-        crc = crc ^ ((uint16_t) data[i] << 8);
-        for (uint8_t j = 0; j < 8; j++) {
-            if (crc & 0x8000) {
-                crc = (crc << 1) ^ 0x1021;
-            } else {
-                crc <<= 1;
-            }
-        }
+uint16_t CRC(char *data, int length) {
+    unsigned short crc, i;
+    crc = 0;
+    while (--length >= 0) {
+        crc = crc ^ (int) *data++ << 8;
+        for (i = 0; i < 8; ++i)
+            if (crc & 0x8000)
+                crc = crc << 1 ^ 0x1021;
+            else
+                crc = crc << 1;
     }
     return crc;
 }
@@ -35,7 +34,7 @@ unsigned char calculate_checksum(char data[128]) {
 }
 
 void sentPacketCS(unsigned char packetNumber, char dataPayload[128]) {
-    char packet[133];
+    char packet[132];
     char complement = (unsigned char) 255 - packetNumber;
     for (int i = 3; i < 131; ++i) {
         packet[i] = (char) 26;
@@ -49,7 +48,8 @@ void sentPacketCS(unsigned char packetNumber, char dataPayload[128]) {
         j++;
     }
     packet[131] = calculate_checksum(dataPayload);
-    WriteFile(PORTHandle, &packet, 133, &len, nullptr);
+    packet[132] = 0;
+    WriteFile(PORTHandle, &packet, 132, &len, nullptr);
     cout << "Packet " << (int) packetNumber << " has been sent... ";
 }
 
@@ -69,9 +69,11 @@ void sentPacketCRC(unsigned char packetNumber, char dataPayload[128]) {
     }
 
 
-    uint16_t crc = calculate_crc(dataPayload);
-    packet[131] = (uint8_t) ((crc >> 8) & 0xFF);
-    packet[132] = (uint8_t) (crc & 0xFF);
+    uint16_t crc = CRC(dataPayload,128);
+    packet[131]=0;
+    packet[132]=0;
+    packet[131] = (char) ((crc >> 8) & 0xFF);
+    packet[132] = (char) (crc & 0xFF);
     WriteFile(PORTHandle, &packet, 133, &len, nullptr);
     cout << "Packet " << (int) packetNumber << " has been sent...";
 }
@@ -88,7 +90,7 @@ int main() {
     bool theSamePacket= false;
 
     system("cls");
-    PORT = "COM4";
+    PORT = "COM1";
     cout << "XMODEM - SENDER" << endl;
     cout << "Port: " << PORT << endl;
 
@@ -115,6 +117,7 @@ int main() {
     buffer = 0;
     ifstream file("doWyslania.txt", ios::binary);
 
+
     while (true) {
 
         //READING BLOCK
@@ -130,23 +133,21 @@ int main() {
         } else {
             sentPacketCS(packetCount, block);
         }
-
         //Waiting for ACK or NAK or CAN
         buffer = 0;
         ReadFile(PORTHandle, &buffer, 1, &len, nullptr);
-        cout << (int)buffer << " ";
 
-//        if (buffer == ACK ) {
-//            cout << "ACK received from packet no. " << packetCount<<endl;
-//        } else if (buffer == NAK or buffer == C) {
-//            cout << "NAC received from packet no. " << packetCount << " Retransmition needed!"<<endl;
-//            theSamePacket = true;
-//            if(counter == 10) {cout<<"PACKET TRANSMITION FAILED";break;}
-//            counter++;
-//            continue;
-//        } else if(buffer == CAN) return -1;
-//        theSamePacket = false;
-//        packetCount++;
+        if (buffer == ACK ) {
+            cout << "ACK received from packet no. " << packetCount<<endl;
+        } else if (buffer == NAK or buffer == C) {
+            cout << "NAC received from packet no. " << packetCount << " Retransmition needed!"<<endl;
+            theSamePacket = true;
+            if(counter == 10) {cout<<"PACKET TRANSMITION FAILED";break;}
+            counter++;
+            continue;
+        } else if(buffer == CAN) return -1;
+        theSamePacket = false;
+        packetCount++;
 
         //EOT
         if(file.eof() == 1 ){
@@ -160,9 +161,6 @@ int main() {
             }
             break;
         }
-//        else{
-//            WriteFile(PORTHandle, &ACK, 1, &len, nullptr);
-//        }
 
     }
     cout << "\nEnd of file!" <<endl;

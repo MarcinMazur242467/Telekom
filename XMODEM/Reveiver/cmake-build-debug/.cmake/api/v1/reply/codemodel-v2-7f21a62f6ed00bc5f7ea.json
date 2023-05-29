@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/cmake-build-debug",
-		"source" : "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver"
+		"build" : "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver/cmake-build-debug",
+		"source" : "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver"
 	},
 	"version" : 
 	{

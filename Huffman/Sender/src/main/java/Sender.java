@@ -6,7 +6,7 @@ import java.net.Socket;
 public class Sender {
     public static void main(String[] args) throws IOException {
 
-        String filePath = "D:\\JavaProjects\\Telekom\\Huffman\\Sender\\doSzyfrowania.txt";
+        String filePath = ".\\doSzyfrowania.txt";
         String fileContent;
 
         try {

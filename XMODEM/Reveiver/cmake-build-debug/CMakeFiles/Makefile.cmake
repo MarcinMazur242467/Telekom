@@ -109,7 +109,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "C:/Users/trelo/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/231.8109.222/bin/cmake/win/x64/share/cmake-3.25/Modules/Platform/Windows.cmake"
   "C:/Users/trelo/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/231.8109.222/bin/cmake/win/x64/share/cmake-3.25/Modules/Platform/WindowsPaths.cmake"
   "C:/Users/trelo/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/231.8109.222/bin/cmake/win/x64/share/cmake-3.25/Modules/ProcessorCount.cmake"
-  "C:/Workspace/Telekom/Telekom/XMODEM/Reveiver/CMakeLists.txt"
+  "C:/Workspace/XMODEM CHUJ/Telekom/XMODEM/Reveiver/CMakeLists.txt"
   "CMakeFiles/3.25.2/CMakeCCompiler.cmake"
   "CMakeFiles/3.25.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.25.2/CMakeRCCompiler.cmake"

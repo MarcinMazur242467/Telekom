@@ -1,4 +1,4 @@
-C:\Users\trelo\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\231.8109.222\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S C:\Workspace\Telekom\Telekom\XMODEM\Sender -B C:\Workspace\Telekom\Telekom\XMODEM\Sender\cmake-build-debug
+C:\Users\trelo\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\231.8109.222\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S "C:\Workspace\XMODEM CHUJ\Telekom\XMODEM\Sender" -B "C:\Workspace\XMODEM CHUJ\Telekom\XMODEM\Sender\cmake-build-debug"
 -- The C compiler identification is GNU 11.2.0
 -- The CXX compiler identification is GNU 11.2.0
 -- Detecting C compiler ABI info
